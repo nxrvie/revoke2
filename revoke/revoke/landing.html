@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="CyberShield — Société de cybersécurité basée à Tunis, Centre Urbain. Audit, surveillance 24/7 et réponse aux incidents. Un projet de Siwar Hbibi et Marwa Mejri, classe 2TSGI 2.">
+<title>CyberShield — Cybersécurité à Tunis, Centre Urbain</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+/* =========================================================
+   CYBERSHIELD — Landing page
+   Refaite de zéro · Un seul fichier · Aucune dépendance
+   ========================================================= */
+:root{
+  --bg:#060b16; --bg2:#0a1326; --card:#101d36; --card-hi:#16264a;
+  --line:#22375d; --line-soft:#1a2c4b;
+  --text:#f4f8ff; --muted:#a9bcd8; --dim:#7d95b8;
+  --cyan:#2dd4bf; --blue:#60a5fa; --violet:#a78bfa;
+  --green:#34d399; --amber:#fbbf24; --red:#fb7185;
+  --r:18px; --max:1120px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font:17px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(900px 520px at 88% -8%,rgba(45,212,191,.12),transparent 62%),
+    radial-gradient(760px 520px at -12% 32%,rgba(96,165,250,.10),transparent 60%),
+    radial-gradient(700px 500px at 60% 110%,rgba(167,139,250,.07),transparent 60%);
+}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 24px;position:relative;z-index:1}
+a{color:var(--cyan);text-decoration:none}
+a:hover{text-decoration: underline}
+.icon{width:22px;height:22px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- Header ---------- */
+.top{position:sticky;top:0;z-index:20;background:rgba(6,11,22,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line-soft)}
+.top-in{display:flex;align-items:center;gap:22px;min-height:76px}
+.logo{display:flex;align-items:center;gap:11px;color:var(--text);font-size:23px;font-weight:800;letter-spacing:-.03em}
+.logo:hover{text-decoration:none}
+.logo .mark{width:38px;height:38px;flex:none}
+.logo b{color:var(--cyan)}
+.menu{display:flex;gap:24px;margin-left:auto}
+.menu a{color:var(--muted);font-size:15px;font-weight:600}
+.menu a:hover{color:var(--text);text-decoration:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:11px 19px;border-radius:11px;font:inherit;font-size:15px;font-weight:750;cursor:pointer;border:1px solid transparent;transition:.16s}
+.btn:hover{transform:translateY(-2px);text-decoration:none}
+.logo:hover,.menu a:hover{text-decoration:none}
+.btn-primary{background:linear-gradient(135deg,var(--cyan),var(--blue));color:#04121d;box-shadow:0 8px 24px rgba(45,212,191,.18)}
+.btn-outline{border-color:var(--line);color:var(--text);background:rgba(255,255,255,.02)}
+.btn-outline:hover{border-color:var(--cyan)}
+.btn-lg{padding:15px 24px;font-size:16px;border-radius:13px}
+
+/* ---------- Hero ---------- */
+.hero{display:grid;grid-template-columns:1.12fr .88fr;gap:54px;align-items:center;padding:82px 0 96px}
+.tag{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:40px;background:rgba(45,212,191,.10);border:1px solid rgba(45,212,191,.32);color:var(--cyan);font-size:13px;font-weight:800;letter-spacing:.06em}
+.tag .dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 4px rgba(45,212,191,.14)}
+h1{font-size:56px;line-height:1.08;letter-spacing:-.035em;margin:22px 0 18px}
+h1 em{color:var(--cyan);font-style:normal}
+.lead{font-size:20px;color:var(--muted);max-width:620px;margin:0 0 12px}
+.lead b{color:var(--text)}
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.numbers{display:flex;gap:36px;margin-top:42px;flex-wrap:wrap;padding-top:26px;border-top:1px solid var(--line-soft)}
+.numbers div{min-width:110px}
+.numbers strong{display:block;font-size:28px;letter-spacing:-.03em}
+.numbers span{color:var(--dim);font-size:14px}
+.hero-card{position:relative;background:linear-gradient(160deg,#132247,#0a1326);border:1px solid var(--line);border-radius:26px;padding:34px;box-shadow:0 30px 70px rgba(0,0,0,.45)}
+.hero-card svg.big{width:100%;height:auto;display:block}
+.hero-card .caption{text-align:center;color:var(--muted);font-size:14px;margin:18px 0 0}
+.float{position:absolute;background:#0d1a32;border:1px solid var(--line);border-radius:13px;padding:11px 14px;font-size:13px;box-shadow:0 14px 30px rgba(0,0,0,.4);display:flex;align-items:center;gap:8px}
+.float b{font-size:18px;color:var(--cyan);display:block;line-height:1.2}
+.float span{color:var(--dim);font-size:11px}
+.float.one{top:24px;left:-26px}
+.float.two{bottom:-64px;right:28px}
+
+/* ---------- Sections ---------- */
+section{padding:78px 0;border-top:1px solid var(--line-soft)}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;color:var(--cyan);font-size:13px;font-weight:850;letter-spacing:.13em;text-transform:uppercase}
+.eyebrow::before{content:"";width:22px;height:2px;background:var(--cyan);border-radius:2px}
+h2{font-size:38px;line-height:1.18;letter-spacing:-.03em;margin:12px 0 14px}
+h3{margin:0 0 8px;font-size:19px;letter-spacing:-.01em}
+.intro{color:var(--muted);font-size:18px;max-width:760px;margin:0 0 38px}
+.intro b,.intro strong{color:var(--text)}
+.grid{display:grid;gap:20px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.card{background:linear-gradient(160deg,var(--card),#0b162b);border:1px solid var(--line);border-radius:var(--r);padding:28px;transition:.2s}
+.card:hover{border-color:rgba(45,212,191,.35);transform:translateY(-3px)}
+.card p{color:var(--muted);margin:0;font-size:16px}
+.card .ico{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:rgba(45,212,191,.11);color:var(--cyan);border:1px solid rgba(45,212,191,.2);margin-bottom:18px}
+.card blue .ico,.card .ico.blue{background:rgba(96,165,250,.12);color:var(--blue);border-color:rgba(96,165,250,.24)}
+.card .ico.violet{background:rgba(167,139,250,.12);color:var(--violet);border-color:rgba(167,139,250,.24)}
+.card .ico.amber{background:rgba(251,191,36,.12);color:var(--amber);border-color:rgba(251,191,36,.24)}
+
+/* Définition */
+.definition{display:flex;flex-direction:column;justify-content:center;background:linear-gradient(135deg,rgba(45,212,191,.13),rgba(96,165,250,.10)),var(--card);border:1px solid rgba(45,212,191,.3);border-radius:var(--r);padding:30px;font-size:19px;line-height:1.7}
+.definition .mini-label{align-self:flex-start;margin-bottom:16px;padding:6px 12px;border-radius:9px;background:rgba(45,212,191,.16);border:1px solid rgba(45,212,191,.28);color:var(--cyan);font-size:12px;font-weight:850;letter-spacing:.1em;text-transform:uppercase}
+.definition p{margin:0}
+.definition b{color:var(--cyan)}
+.checks{list-style:none;padding:0;margin:26px 0 0;display:grid;gap:14px}
+.checks li{display:flex;gap:12px;align-items:flex-start;color:var(--muted)}
+.checks .icon{color:var(--green);margin-top:4px}
+.checks b{color:var(--text)}
+
+/* Problème / réponse */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.compare .side{border-radius:var(--r);padding:28px;border:1px solid var(--line)}
+.bad{background:rgba(251,113,133,.05);border-color:rgba(251,113,133,.25)}
+.good{background:rgba(52,211,153,.05);border-color:rgba(52,211,153,.25)}
+.compare h3{display:flex;align-items:center;gap:10px}
+.compare ul{margin:16px 0 0;padding-left:20px;color:var(--muted)}
+.compare li{margin:8px 0}
+.bad h3{color:var(--red)}
+.good h3{color:var(--green)}
+
+/* Étapes */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;counter-reset:s}
+.step{position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:26px 22px}
+.step::before{counter-increment:s;content:"0" counter(s);display:grid;place-items:center;width:46px;height:46px;border-radius:13px;background:rgba(96,165,250,.14);color:var(--blue);font-weight:850;font-size:17px;margin-bottom:16px}
+.step:not(:last-child)::after{content:"→";position:absolute;right:-16px;top:46px;color:var(--dim);font-size:20px;z-index:2}
+.step p{color:var(--muted);font-size:15px;margin:0}
+
+/* Rôles */
+.role{border-top:4px solid var(--cyan)}
+.role.tech{border-color:var(--blue)}
+.role.client{border-color:var(--amber)}
+.role .who{font-size:12px;font-weight:850;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan)}
+.role.tech .who{color:var(--blue)}
+.role.client .who{color:var(--amber)}
+.role h3{font-size:22px;margin-top:6px}
+.role ul{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:9px}
+.role li{display:flex;gap:10px;color:var(--muted);font-size:15px}
+.role li .icon{width:17px;height:17px;color:var(--cyan);margin-top:3px}
+.role.tech li .icon{color:var(--blue)}
+.role.client li .icon{color:var(--amber)}
+
+/* Services */
+.services{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.service{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px;display:flex;flex-direction:column}
+.service h3{font-size:18px}
+.service p{color:var(--muted);font-size:15px;flex:1;margin:0 0 14px}
+.price{color:var(--cyan);font-weight:800;font-size:17px;border-top:1px solid var(--line-soft);padding-top:12px}
+
+/* Builders */
+.builders{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.person{background:linear-gradient(160deg,var(--card),#0b162b);border:1px solid var(--line);border-radius:var(--r);padding:30px;display:flex;gap:22px;align-items:flex-start}
+.avatar{width:76px;height:76px;flex:none;border-radius:20px;display:grid;place-items:center;font-size:25px;font-weight:850;color:#04121d;background:linear-gradient(135deg,var(--cyan),var(--blue))}
+.avatar.marwa{background:linear-gradient(135deg,var(--violet),var(--blue))}
+.person .role-tag{display:inline-block;margin-bottom:8px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--cyan)}
+.person.marwa .role-tag{color:var(--violet)}
+.person h3{font-size:23px}
+.person p{color:var(--muted);font-size:15px;margin:0}
+.class-badge{display:inline-flex;align-items:center;gap:8px;margin-top:24px;padding:9px 15px;border-radius:10px;background:rgba(167,139,250,.10);border:1px solid rgba(167,139,250,.28);color:var(--violet);font-size:14px;font-weight:750}
+
+/* Localisation */
+.location{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:stretch}
+.map{position:relative;min-height:330px;border-radius:var(--r);border:1px solid var(--line);overflow:hidden;background:#0b162b}
+#realmap{position:absolute;inset:0;background:#0b162b;z-index:1}
+#map-fallback{position:absolute;inset:0;z-index:0}
+#map-fallback svg{width:100%;height:100%;display:block}
+.leaflet-container{background:#0b162b;font-family:inherit}
+.leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(1.12) contrast(.98) saturate(.85)}
+.leaflet-control-zoom a{background:#0d1a32!important;color:var(--text)!important;border-color:var(--line)!important}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#0d1a32;color:var(--text)}
+.map-tag,.map-coord{z-index:5}
+.map-tag{position:absolute;color:var(--dim);pointer-events:none}
+.map-tag.tl{top:16px;left:18px;font-size:12px;font-weight:750;letter-spacing:.14em;background:rgba(6,11,22,.78);padding:5px 10px;border-radius:8px;border:1px solid var(--line)}
+.map-coord{position:absolute;left:18px;bottom:18px;background:rgba(6,11,22,.86);border:1px solid var(--line);border-radius:9px;padding:7px 11px;font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}
+.map-link{display:inline-flex;align-items:center;gap:7px;color:var(--cyan);font-size:14px;font-weight:700;margin-top:2px}
+.pin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:grid;place-items:center;width:54px;height:54px;border-radius:50%;background:rgba(45,212,191,.16);border:2px solid var(--cyan);box-shadow:0 0 0 12px rgba(45,212,191,.08),0 0 0 26px rgba(45,212,191,.04);pointer-events:none}
+.pin .icon{width:26px;height:26px;color:var(--cyan)}
+.pin-label{position:absolute;left:calc(50% + 38px);top:calc(50% - 9px);background:#0d1a32;border:1px solid var(--cyan);border-radius:9px;padding:6px 11px;font-size:13px;font-weight:750;white-space:nowrap;pointer-events:none}
+.info{display:grid;align-content:center;gap:14px}
+.info h3{font-size:26px}
+.info p{color:var(--muted);margin:0}
+.address{display:flex;gap:13px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:16px}
+.address .icon{color:var(--cyan);margin-top:3px}
+.address b{display:block}
+.address span{color:var(--muted);font-size:14px}
+
+/* Démo */
+.demo{background:linear-gradient(135deg,rgba(45,212,191,.12),rgba(96,165,250,.09)),var(--card);border:1px solid rgba(45,212,191,.32)}
+.accounts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:28px 0}
+.account{background:#091326;border:1px solid var(--line);border-radius:13px;padding:18px}
+.account b{display:block;font-size:16px;margin-bottom:9px}
+.account code{display:block;color:var(--muted);font:14px/1.9 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+.account code span{color:var(--cyan)}
+.note{color:var(--muted);font-size:14px;margin:16px 0 0}
+
+/* Footer */
+footer{border-top:1px solid var(--line-soft);padding:42px 0;color:var(--dim);font-size:15px}
+.foot{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
+.foot b{color:var(--text)}
+.foot a{color:var(--muted)}
+
+@media(max-width:980px){
+  .hero{grid-template-columns:1fr;padding:56px 0 70px}
+  h1{font-size:42px}
+  .g3,.g2,.services,.builders,.steps,.accounts,.compare,.location{grid-template-columns:1fr}
+  .step:not(:last-child)::after{display:none}
+  .menu a{display:none}
+  .float.one{left:8px}
+  .float.two{right:8px}
+  .numbers{gap:22px}
+}
+@media(max-width:560px){
+  h1{font-size:34px}
+  h2{font-size:29px}
+  .lead{font-size:17px}
+  .person{flex-direction:column}
+  .hero-card{padding:20px}
+}
+</style>
+
+<!-- Jeu d'icônes réutilisable -->
+<svg style="display:none" aria-hidden="true">
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-3 3-3-3z"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18M7 16v-5M12 16V7M17 16v-3"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 8-4 4 4 4m8-8 4 4-4 4M14 4l-4 16"/></symbol>
+</svg>
+
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="logo" href="#top">
+      <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+        <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2dd4bf"/><stop offset="1" stop-color="#60a5fa"/></linearGradient></defs>
+        <path d="M32 3 8 12v18c0 15 10 27 24 31 14-4 24-16 24-31V12L32 3Z" fill="#0a1730" stroke="url(#lg)" stroke-width="2.5"/>
+        <path d="M32 18a9 9 0 0 0-9 9v3h-2a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h22a2 2 0 0 0 2-2V32a2 2 0 0 0-2-2h-2v-3a9 9 0 0 0-9-9Zm-5 12v-3a5 5 0 0 1 10 0v3H27Z" fill="url(#lg)"/>
+      </svg>
+      <span>Cyber<b>Shield</b></span>
+    </a>
+    <nav class="menu">
+      <a href="#about">C'est quoi ?</a>
+      <a href="#roles">Les 3 comptes</a>
+      <a href="#services">Services</a>
+      <a href="#team">Les créatrices</a>
+      <a href="#location">Où ?</a>
+    </nav>
+    <a class="btn btn-primary" href="#try">Essayer la démo</a>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- 1. HERO -->
+<div class="wrap hero">
+  <div>
+    <span class="tag"><span class="dot"></span> CYBERSÉCURITÉ · TUNIS, CENTRE URBAIN</span>
+    <h1>Votre entreprise mérite<br>d'être <em>bien protégée.</em></h1>
+    <p class="lead">CyberShield trouve vos failles, surveille vos systèmes <b>24h/24</b> et intervient quand il y a un problème. Et vous, vous voyez tout depuis votre espace personnel.</p>
+    <p class="lead">Une société de cybersécurité <b>née à Tunis</b> et une application web pensée pour être comprise par tout le monde.</p>
+    <div class="cta">
+      <a class="btn btn-primary btn-lg" href="demo/index.html">Voir la démo <svg class="icon"><use href="#i-arrow"/></svg></a>
+      <a class="btn btn-outline btn-lg" href="#about">Comprendre le projet</a>
+    </div>
+    <div class="numbers">
+      <div><strong>240+</strong><span>interventions réalisées</span></div>
+      <div><strong>24/7</strong><span>surveillance active</span></div>
+      <div><strong>98 %</strong><span>clients satisfaits</span></div>
+    </div>
+  </div>
+  <div class="hero-card">
+    <div class="float one"><div><b>1 284</b><span>menaces bloquées</span></div></div>
+    <div class="float two"><svg class="icon" style="color:var(--green)"><use href="#i-check"/></svg><div><b>Protégé</b><span>système en ligne</span></div></div>
+    <svg class="big" viewBox="0 0 420 330" aria-label="Bouclier CyberShield">
+      <defs><linearGradient id="hg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2dd4bf"/><stop offset="1" stop-color="#60a5fa"/></linearGradient></defs>
+      <circle cx="210" cy="160" r="140" fill="none" stroke="#22375d" stroke-dasharray="4 9"/>
+      <circle cx="210" cy="160" r="104" fill="none" stroke="#2c4472" stroke-dasharray="3 10"/>
+      <circle cx="210" cy="160" r="70" fill="url(#hg)" opacity=".08"/>
+      <path d="M210 42 118 78v60c0 60 39 108 92 123 53-15 92-63 92-123V78l-92-36Z" fill="#0b162b" stroke="url(#hg)" stroke-width="3"/>
+      <path d="M210 116a25 25 0 0 0-25 25v10h-6a5 5 0 0 0-5 5v34a5 5 0 0 0 5 5h62a5 5 0 0 0 5-5v-34a5 5 0 0 0-5-5h-6v-10a25 25 0 0 0-25-25Zm-14 35v-10a14 14 0 0 1 28 0v10h-28Z" fill="url(#hg)"/>
+      <circle cx="210" cy="171" r="5" fill="#04121d"/>
+      <text x="210" y="292" text-anchor="middle" fill="#7d95b8" font-size="13" font-family="Arial">Sécurité. Clarté. Confiance.</text>
+    </svg>
+    <p class="caption">Un seul objectif : vous protéger sans compliquer votre vie.</p>
+  </div>
+</div>
+
+<!-- 2. C'EST QUOI -->
+<section id="about">
+  <div class="wrap">
+    <span class="eyebrow">C'est quoi CyberShield ?</span>
+    <h2>Une société. Une application. Une seule mission.</h2>
+    <p class="intro">CyberShield est une <b>société de cybersécurité</b> installée à <b>Tunis, Centre Urbain</b>. Elle aide les entreprises à se défendre contre les attaques numériques. Mais ce n'est pas tout : nous avons aussi construit une <b>application web</b> qui rend tout cela visible et facile à suivre.</p>
+    <div class="grid g2">
+      <div class="definition">
+        <span class="mini-label">En une phrase</span>
+        <p>CyberShield, c'est une équipe d'experts qui intervient sur vos systèmes, et un espace en ligne où vous voyez ce qui a été fait, ce qui est en cours et ce qui reste à faire.</p>
+      </div>
+      <div class="card">
+        <h3>Pourquoi nous existons</h3>
+        <p>Parce que trop d'entreprises découvrent leurs failles trop tard, et ne savent jamais vraiment où en est leur sécurité. Nous voulons changer ça : des vérifications régulières, des alertes claires et des rapports que tout le monde peut lire.</p>
+        <ul class="checks">
+          <li><svg class="icon"><use href="#i-check"/></svg><span><b>Pas de jargon :</b> des explications simples.</span></li>
+          <li><svg class="icon"><use href="#i-check"/></svg><span><b>Pas d'attente :</b> le suivi est en temps réel.</span></li>
+          <li><svg class="icon"><use href="#i-check"/></svg><span><b>Pas de zone d'ombre :</b> chaque action est tracée.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="compare" style="margin-top:28px">
+      <div class="side bad">
+        <h3><svg class="icon"><use href="#i-x"/></svg> Avant</h3>
+        <ul>
+          <li>On ne sait pas si le réseau est protégé.</li>
+          <li>Les rapports arrivent par e-mail, sans explication.</li>
+          <li>En cas d'incident, on ne sait pas qui fait quoi.</li>
+          <li>Les petites entreprises n'ont pas les moyens d'une grande firme.</li>
+        </ul>
+      </div>
+      <div class="side good">
+        <h3><svg class="icon"><use href="#i-check"/></svg> Avec CyberShield</h3>
+        <ul>
+          <li>Un audit régulier montre précisément les failles.</li>
+          <li>Chaque intervention a un statut et une note du technicien.</li>
+          <li>L'alerte est traitée par une personne identifiée.</li>
+          <li>Une offre locale, proche et adaptée aux PME tunisiennes.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. COMMENT CA MARCHE -->
+<section id="how">
+  <div class="wrap">
+    <span class="eyebrow">Mode d'emploi</span>
+    <h2>Comment ça marche, concrètement ?</h2>
+    <p class="intro">Quatre étapes, du premier message au rapport final. Simple pour le client, clair pour l'équipe.</p>
+    <div class="steps">
+      <div class="step"><h3>Le client demande</h3><p>Il décrit son problème dans son espace : titre, description, appareil concerné, priorité.</p></div>
+      <div class="step"><h3>L'admin organise</h3><p>La demande est planifiée, priorisée et confiée au bon technicien.</p></div>
+      <div class="step"><h3>Le technicien agit</h3><p>Il intervient, change le statut et note ce qu'il a trouvé et corrigé.</p></div>
+      <div class="step"><h3>Le rapport est prêt</h3><p>Le client voit la fin de l'intervention et lit le rapport dans son espace.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. LES 3 COMPTES -->
+<section id="roles">
+  <div class="wrap">
+    <span class="eyebrow">Trois rôles, trois missions</span>
+    <h2>Chacun voit uniquement ce qui le concerne.</h2>
+    <p class="intro">L'application sépare les droits : c'est plus simple à utiliser, et plus sûr pour les données.</p>
+    <div class="grid g3">
+      <div class="card role">
+        <div class="who">Admin — pilotage</div>
+        <h3>Il gère l'ensemble</h3>
+        <p>La direction a une vue complète sur l'entreprise et l'activité.</p>
+        <ul>
+          <li><svg class="icon"><use href="#i-users"/></svg> Clients et employés</li>
+          <li><svg class="icon"><use href="#i-target"/></svg> Appareils et alertes</li>
+          <li><svg class="icon"><use href="#i-wrench"/></svg> Interventions et planning</li>
+          <li><svg class="icon"><use href="#i-chart"/></svg> Rapports et statistiques</li>
+        </ul>
+      </div>
+      <div class="card role tech">
+        <div class="who">Technicien — terrain</div>
+        <h3>Il intervient</h3>
+        <p>Le technicien se concentre sur ses missions, sans distraction.</p>
+        <ul>
+          <li><svg class="icon"><use href="#i-wrench"/></svg> Ses seules interventions</li>
+          <li><svg class="icon"><use href="#i-check"/></svg> Statut : en attente → terminée</li>
+          <li><svg class="icon"><use href="#i-file"/></svg> Notes et date de fin</li>
+          <li><svg class="icon"><use href="#i-eye"/></svg> Alertes à traiter</li>
+        </ul>
+      </div>
+      <div class="card role client">
+        <div class="who">Client — suivi</div>
+        <h3>Il reste informé</h3>
+        <p>Le client comprend où en est son affaire, à tout moment.</p>
+        <ul>
+          <li><svg class="icon"><use href="#i-user"/></svg> Création de compte en 1 minute</li>
+          <li><svg class="icon"><use href="#i-shield"/></svg> Découverte des services et prix</li>
+          <li><svg class="icon"><use href="#i-wrench"/></svg> Demande d'intervention</li>
+          <li><svg class="icon"><use href="#i-file"/></svg> Suivi et rapports personnels</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. SERVICES -->
+<section id="services">
+  <div class="wrap">
+    <span class="eyebrow">Nos services</span>
+    <h2>Ce que fait CyberShield pour vous.</h2>
+    <p class="intro">Des prestations concrètes, avec des prix clairs. Chaque mission est suivie dans l'application.</p>
+    <div class="services">
+      <div class="service"><h3>Audit de sécurité</h3><p>On examine votre réseau et vos accès, puis on vous liste les points à corriger.</p><div class="price">2 500 DT</div></div>
+      <div class="service"><h3>Test d'intrusion</h3><p>On essaie d'entrer dans votre système comme un attaquant, pour voir ce qui cède.</p><div class="price">3 500 DT</div></div>
+      <div class="service"><h3>Surveillance 24/7</h3><p>Nos outils veillent jour et nuit et déclenchent une alerte en cas d'anomalie.</p><div class="price">1 800 DT / mois</div></div>
+      <div class="service"><h3>Gestion d'incident</h3><p>Une attaque ou un poste infecté ? Un technicien intervient en urgence.</p><div class="price">1 200 DT</div></div>
+      <div class="service"><h3>Conformité & RGPD</h3><p>On met vos traitements de données en règle et on vous aide à documenter.</p><div class="price">2 000 DT</div></div>
+      <div class="service"><h3>Formation du personnel</h3><p>On apprend à vos équipes à repérer le phishing et les mauvaises pratiques.</p><div class="price">900 DT</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. LES CRÉATRICES -->
+<section id="team">
+  <div class="wrap">
+    <span class="eyebrow">Les créatrices du projet</span>
+    <h2>Deux étudiantes. Un vrai projet.</h2>
+    <p class="intro">CyberShield a été imaginé, conçu et réalisé par <b>Siwar Hbibi</b> et <b>Marwa Mejri</b>, deux étudiantes de la classe <b>2TSGI 2</b>. Elles ont construit l'entreprise sur le papier et l'application sur l'écran.</p>
+    <div class="builders">
+      <div class="person">
+        <div class="avatar">SH</div>
+        <div>
+          <span class="role-tag">Co-fondatrice · Admin & direction</span>
+          <h3>Siwar Hbibi</h3>
+          <p>Elle pilote le projet : stratégie, gestion financière, relations clients et administration de la plateforme. Dans l'application, elle occupe le rôle <b>Admin</b> : elle gère les comptes, les clients, les appareils, les interventions et les statistiques.</p>
+        </div>
+      </div>
+      <div class="person marwa">
+        <div class="avatar marwa">MM</div>
+        <div>
+          <span class="role-tag">Co-fondatrice · Responsable technique</span>
+          <h3>Marwa Mejri</h3>
+          <p>Elle porte l'expertise terrain : audit, tests d'intrusion, analyse des alertes et rédaction des rapports. Dans l'application, elle est <b>Technicienne senior</b> : elle reçoit ses interventions, met à jour leur statut et consigne ses notes.</p>
+        </div>
+      </div>
+    </div>
+    <div class="class-badge"><svg class="icon"><use href="#i-users"/></svg> Classe 2TSGI 2 — projet d'entreprise & application web</div>
+  </div>
+</section>
+
+<!-- 7. LOCALISATION -->
+<section id="location">
+  <div class="wrap">
+    <span class="eyebrow">Notre point de départ</span>
+    <h2>Basées à Tunis, au cœur de la capitale.</h2>
+    <p class="intro">Le projet est implanté à <b>Tunis — Centre Urbain</b>. Un quartier dynamique, facile d'accès, au plus près des entreprises que nous accompagnons.</p>
+    <div class="location">
+      <div class="map">
+        <div id="map-fallback">
+          <svg viewBox="0 0 600 360" preserveAspectRatio="none" aria-hidden="true">
+            <rect width="600" height="360" fill="#0b162b"/>
+            <g stroke="#1a2c4b" stroke-width="1"><path d="M0 90h600M0 180h600M0 270h600M120 0v360M300 0v360M480 0v360"/></g>
+            <g stroke="#22375d" stroke-width="8" fill="none"><path d="M-20 250 C140 230 220 150 330 130 S520 90 640 60"/><path d="M60 380 C130 280 260 220 400 200 S540 180 640 210"/></g>
+            <circle cx="300" cy="180" r="80" fill="none" stroke="#2dd4bf" stroke-dasharray="4 7" opacity=".5"/>
+            <circle cx="300" cy="180" r="45" fill="#2dd4bf" opacity=".08"/>
+          </svg>
+        </div>
+        <div id="realmap" aria-label="Carte du Centre Urbain à Tunis"></div>
+        <span class="map-tag tl">TUNIS · CENTRE URBAIN</span>
+        <span class="map-coord">36.84763° N · 10.19835° E · © OpenStreetMap contributors</span>
+      </div>
+      <div class="info">
+        <h3>Où nous trouver</h3>
+        <p>Nous sommes à Tunis, Centre Urbain. Nos techniciens se déplacent dans tout le Grand Tunis et peuvent intervenir ailleurs en Tunisie selon les besoins.</p>
+        <div class="address">
+          <svg class="icon"><use href="#i-pin"/></svg>
+          <div><b>Centre Urbain, Tunis</b><span>Tunisie · Siège et équipe opérationnelle</span></div>
+        </div>
+        <div class="address">
+          <svg class="icon"><use href="#i-clock"/></svg>
+          <div><b>Interventions sur site</b><span>Grand Tunis et toute la Tunisie sur demande</span></div>
+        </div>
+        <div class="address">
+          <svg class="icon"><use href="#i-eye"/></svg>
+          <div><b>Surveillance à distance</b><span>24h/24, 7j/7, où que vous soyez</span></div>
+        </div>
+        <div class="address">
+          <svg class="icon"><use href="#i-target"/></svg>
+          <div><b>Coordonnées exactes</b><span>36.84763° N, 10.19835° E — Centre Urbain Nord</span></div>
+        </div>
+        <a class="map-link" href="https://www.openstreetmap.org/?mlat=36.84763&amp;mlon=10.19835#map=15/36.84763/10.19835" target="_blank" rel="noopener">Voir l'emplacement sur OpenStreetMap <svg class="icon" style="width:16px;height:16px"><use href="#i-arrow"/></svg></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. ESSAYER -->
+<section id="try">
+  <div class="wrap">
+    <div class="card demo">
+      <span class="eyebrow">Aucune installation nécessaire</span>
+      <h2>Essayez les 3 comptes en 10 secondes.</h2>
+      <p class="intro">Ouvrez la démo, cliquez sur un compte, connectez-vous. Vous verrez immédiatement ce que chaque rôle peut faire : ajouter, modifier, supprimer, rechercher, demander une intervention et suivre son avancement.</p>
+      <div class="accounts">
+        <div class="account"><b>🛡️ Admin — Siwar</b><code>admin@cybershield.tn<br><span>Admin123!</span></code></div>
+        <div class="account"><b>🔧 Technicien — Marwa</b><code>tech@cybershield.tn<br><span>Tech123!</span></code></div>
+        <div class="account"><b>👤 Client</b><code>client@cybershield.tn<br><span>Client123!</span></code></div>
+      </div>
+      <a class="btn btn-primary btn-lg" href="demo/index.html">Ouvrir la démo interactive <svg class="icon"><use href="#i-arrow"/></svg></a>
+      <p class="note">La version complète fonctionne avec <b>HTML, CSS, JavaScript, PHP et MySQL</b> via XAMPP. Les étapes d'installation sont dans le fichier <code>README.md</code>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 9. LE PROJET EN CHIFFRES -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow">Ce que contient le projet</span>
+    <h2>Pas seulement une page. Un dossier complet.</h2>
+    <p class="intro">CyberShield, c'est une application qui fonctionne et un business plan qui explique comment l'entreprise vit.</p>
+    <div class="grid g3">
+      <div class="card"><div class="ico"><svg class="icon"><use href="#i-code"/></svg></div><h3>Application web</h3><p>Connexion, trois rôles, tableaux de bord, graphiques, recherche, ajout / modification / suppression, rapports.</p></div>
+      <div class="card"><div class="ico blue"><svg class="icon"><use href="#i-file"/></svg></div><h3>Business plan</h3><p>L'idée, le financement, les locaux, les équipements, l'équipe, les tarifs, les charges, les recettes et les risques.</p></div>
+      <div class="card"><div class="ico violet"><svg class="icon"><use href="#i-shield"/></svg></div><h3>Identité visuelle</h3><p>Design sombre navy et cyan, logo original, illustrations et interface lisible sur ordinateur comme sur mobile.</p></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div>
+      <b>CyberShield</b> — Votre sécurité, notre mission.<br>
+      Siwar Hbibi &amp; Marwa Mejri · Classe 2TSGI 2
+    </div>
+    <div>
+      <svg class="icon" style="color:var(--cyan);display:inline;vertical-align:-5px"><use href="#i-pin"/></svg>
+      Centre Urbain, Tunis, Tunisie<br>
+      <a href="#top">Retour en haut ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function () {
+  if (!window.L || !document.getElementById('realmap')) return;
+  var map = L.map('realmap', {
+    center: [36.84763, 10.19835],
+    zoom: 15,
+    scrollWheelZoom: false,
+    zoomControl: false,
+    attributionControl: false
+  });
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19
+  }).addTo(map);
+  L.control.zoom({ position: 'topright' }).addTo(map);
+  L.marker([36.84763, 10.19835]).addTo(map).bindPopup('<b>Centre Urbain</b><br>Tunis, Tunisie');
+  document.getElementById('map-fallback').style.display = 'none';
+  setTimeout(function () { map.invalidateSize(); }, 200);
+})();
+</script>
+</body>
+</html>
